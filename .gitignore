@@ -4,8 +4,6 @@ iml-dl/weights/
 .ipynb_checkpoints/
 *.ipynb_checkpoints/
 *__pycache__*
-# Jupyter Notebook autosave files
-*.ipynb*
 
 # Jupyter Notebook logs
 *.log
