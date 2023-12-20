@@ -7,4 +7,9 @@ iml-dl/weights/
 
 # Jupyter Notebook logs
 *.log
+**/wandb*
+*/**/__pycache__
+*/**/**/__pycache__
+**/data/*
+!**/data/cardiac_attributes_loader.py
 
