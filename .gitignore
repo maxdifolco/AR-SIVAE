@@ -1,1 +1,12 @@
 iml-dl/weights/
+
+# Jupyter Notebook temporary files
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# Jupyter Notebook autosave files
+*.ipynb*
+
+# Jupyter Notebook logs
+*.log
+
