@@ -1,0 +1,85 @@
+name: AR-SIVAE
+target_size: &id001 !!python/tuple
+- 128
+- 128
+checkpoint_path: ./weights/
+binary_label: true
+attributes_idx: &id002 !!python/tuple
+- LVEDV
+- MYOEDV
+- RVEDV
+rescale: 1
+t_batch_size: 16
+experiment:
+  name: AR-SIVAE project
+  task: train
+  weights: # path to best_model.pt
+device: gpu
+configurator:
+  module_name: core.Configurator
+  class_name: DLConfigurator
+  params: null
+model:
+  module_name: model_zoo.soft_intro_vae_daniel
+  class_name: SoftIntroVAE
+  params:
+    cdim: 1
+    zdim: 256
+    channels:
+    - 64
+    - 128
+    - 256
+    - 512
+    - 512
+    image_size: 128
+    conditional: false
+trainer:
+  module_name: projects.AR-SIVAE.Trainer_SIVAE
+  class_name: PTrainer
+  params:
+    input_size: *id001
+    checkpoint_path: ./weights/
+    nr_epochs: 750
+    loss:
+      module_name: optim.losses.ln_losses
+      class_name: L2
+      params: null
+    patience: 300
+    reg_loss: 0.1
+    beta_neg: 1024
+    beta_rec: 0.8
+    loss_type: pl
+    annealing: 100
+    annealing_mse: 0.5
+    beta_kl: 1
+    optimizer_params:
+      lr: 0.0002
+  data_loader:
+    module_name: data.cardiac_attributes_loader
+    class_name: CardiacLoader
+    params:
+      args:
+        patch_path: /home/maxime.difolco/Documents/data/MICCAI_2023/patch_data/ACDC/basal_resampled_patches.h5
+        attributes_path: /home/maxime.difolco/Documents/data/MICCAI_2023/attributes_data/ACDC/
+        attributes_idx: *id002
+        win_size: *id001
+        rescale: 1
+        binary_label: true
+        batch_size: 16
+downstream_tasks:
+  ACDC:
+    module_name: projects.AR-SIVAE.DownstreamEvaluator
+    class_name: PDownstreamEvaluator
+    checkpoint_path: ./weights/
+    data_loader:
+      module_name: data.cardiac_attributes_loader
+      class_name: CardiacLoader
+      params:
+        args:
+          patch_path: /home/maxime.difolco/Documents/data/MICCAI_2023/patch_data/ACDC/basal_resampled_patches.h5
+          attributes_path: /home/maxime.difolco/Documents/data/MICCAI_2023/attributes_data/ACDC/
+          attributes_idx: *id002
+          win_size: *id001
+          rescale: 1
+          binary_label: true
+          batch_size: 16

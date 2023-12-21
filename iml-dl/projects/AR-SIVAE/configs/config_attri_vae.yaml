@@ -1,0 +1,77 @@
+name: Attri-VAE
+target_size: &id001 !!python/tuple
+- 128
+- 128
+win_size: !!python/tuple
+- 128
+- 128
+- 128
+checkpoint_path: ./weights/
+binary_label: true
+attributes_idx: &id002 !!python/tuple
+- LVEDV
+- MYOEDV
+- RVEDV
+rescale: 1.1
+experiment:
+  name: AR-SIVAE project
+  task: train
+  weights: # path to best_model.pt
+device: gpu
+configurator:
+  module_name: core.Configurator
+  class_name: DLConfigurator
+  params: null
+model:
+  module_name: model_zoo.beta_vae_higgings
+  class_name: BetaVAE_H
+  params:
+    z_dim: 128
+    nc: 1
+    additional_layer: true
+trainer:
+  module_name: projects.AR-SIVAE.Trainer_VAE
+  class_name: PTrainer
+  params:
+    input_size: *id001
+    checkpoint_path: ./weights/
+    nr_epochs: 1
+    patience: 250
+    fctr: 0.0005
+    loss:
+      module_name: projects.Attri_VAE.losses_Cetin
+      class_name: CetinLoss_2D
+      params:
+        beta: 2.0
+        gamma: 100
+        factor: 100
+        alpha_mlp: 0
+    optimizer_params:
+      lr: 5.0e-05
+  data_loader:
+    module_name: data.cardiac_attributes_loader
+    class_name: CardiacLoader
+    params:
+      args:
+        patch_path: /home/maxime.difolco/Documents/data/MICCAI_2023/patch_data/ACDC/basal_resampled_patches.h5
+        attributes_path: /home/maxime.difolco/Documents/data/MICCAI_2023/attributes_data/ACDC/
+        attributes_idx: *id002
+        win_size: *id001
+        rescale: 1.1
+        binary_label: true
+downstream_tasks:
+  ACDC:
+    module_name: projects.AR-SIVAE.DownstreamEvaluator
+    class_name: PDownstreamEvaluator
+    checkpoint_path: ./weights/
+    data_loader:
+      module_name: data.cardiac_attributes_loader
+      class_name: CardiacLoader
+      params:
+        args:
+          patch_path: /home/maxime.difolco/Documents/data/MICCAI_2023/patch_data/ACDC/basal_resampled_patches.h5
+          attributes_path: /home/maxime.difolco/Documents/data/MICCAI_2023/attributes_data/ACDC/
+          attributes_idx: *id002
+          win_size: *id001
+          rescale: 1.1
+          binary_label: true

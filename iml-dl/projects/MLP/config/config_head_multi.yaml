@@ -1,0 +1,91 @@
+name: head training
+target_size: &target_size !!python/tuple [128,128] #[80,80,80]
+dbatch_size: &dbatch_size 16
+checkpoint_path: &checkpoint_path ./weights/
+binary_label: &binary_label False
+dict_classes: &dict_classes !!python/dict {'NOR':0,'MINF':1,'DCM':2,'HCM':3,'RV':4}
+attributes_idx: &attributes_idx !!python/tuple ['LVEDV','MYOEDV','RVEDV']
+#
+# Experiment
+#
+experiment:
+  name: MLP
+  task: train
+  weights:  #'./weights/pathology/2022_07_30_01_37_39_297234/best_model.pt'
+#
+device: gpu
+configurator:
+  module_name: core.Configurator
+  class_name: DLConfigurator
+  params:
+
+#
+# Model
+#
+model:
+  module_name: model_zoo.MLP
+  class_name: MLP
+  params:
+    data_dir: './projects/AR-SIVAE/weights/'
+    folder_name: 'Attri_VAE/'
+    latent_dim: 64
+    dict_classes: *dict_classes
+    blocked_latent_features: 64 # min max dimension to not keep
+    hidden_neurons: 64
+    n_layers: 3
+    relu: True
+    dropout: 0.4
+#
+# Trainer
+#
+trainer:
+  module_name: projects.MLP.Trainer_head
+  class_name: PTrainer
+  params:
+    input_size: *target_size
+    nc: 1 # number of channels of input dim
+    checkpoint_path: *checkpoint_path
+    dict_classes: *dict_classes
+    nr_epochs: 250
+    patience: 50
+    # Loss
+    loss:
+      module_name: optim.losses.ln_losses
+      class_name: L2
+      params:
+    alpha: 0.05
+    # Optimizer
+    optimizer_params:
+      lr: 1.0e-4
+  # Data Loader
+  data_loader:
+    module_name: data.cardiac_attributes_loader
+    class_name: CardiacLoader
+    params:
+      args:
+        patch_path: /home/maxime.difolco/Documents/data/MICCAI_2023/patch_data/ACDC/basal_resampled_patches.h5
+        attributes_path: /home/maxime.difolco/Documents/data/MICCAI_2023/attributes_data/ACDC/ 
+        attributes_idx: *attributes_idx
+        win_size: *target_size
+        rescale: 1
+        binary_label: *binary_label
+        batch_size: *dbatch_size
+  #
+# Downstream tasks
+downstream_tasks:
+  ACDC:
+    module_name: projects.MLP.DownstreamEvaluator_head
+    class_name: PDownstreamEvaluator
+    checkpoint_path: *checkpoint_path
+    data_loader:
+      module_name: data.cardiac_attributes_loader
+      class_name: CardiacLoader
+      params:
+        args:
+          patch_path: /home/maxime.difolco/Documents/data/MICCAI_2023/patch_data/ACDC/basal_resampled_patches.h5
+          attributes_path: /home/maxime.difolco/Documents/data/MICCAI_2023/attributes_data/ACDC/
+          attributes_idx: *attributes_idx
+          win_size: *target_size
+          rescale: 1
+          binary_label: *binary_label
+          batch_size: *dbatch_size

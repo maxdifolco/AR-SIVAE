@@ -1,0 +1,78 @@
+name: Attri__z_dim_128_gamma_100_factor_100_
+target_size: &id001 !!python/tuple
+- 128
+- 128
+win_size: !!python/tuple
+- 128
+- 128
+- 128
+dbatch_size: 100
+checkpoint_path: ./weights/
+binary_label: true
+attributes_idx: &id002 !!python/tuple
+- LVEDV
+- MYOEDV
+- RVEDV
+rescale: 1.1
+experiment:
+  name: Attri_
+  task: train
+  weights: null
+device: gpu
+configurator:
+  module_name: core.Configurator
+  class_name: DLConfigurator
+  params: null
+model:
+  module_name: model_zoo.beta_vae_higgings
+  class_name: BetaVAE_H
+  params:
+    z_dim: 128
+    nc: 1
+    additional_layer: true
+trainer:
+  module_name: projects.Attri_VAE.Trainer_Cetin_2D
+  class_name: PTrainer
+  params:
+    input_size: *id001
+    checkpoint_path: ./weights/2023_10_26_12_18_10_630565
+    nr_epochs: 1500
+    patience: 250
+    fctr: 0.0005
+    loss:
+      module_name: projects.Attri_VAE.losses_Cetin
+      class_name: CetinLoss_2D
+      params:
+        beta: 2.0
+        gamma: 100
+        factor: 100
+        alpha_mlp: 0
+    optimizer_params:
+      lr: 5.0e-05
+  data_loader:
+    module_name: data.cardiac_loader_2D
+    class_name: CardiacLoader
+    params:
+      args:
+        patch_path: /home/maxime.difolco/Documents/data/MICCAI_2023/patch_data/ACDC/basal_resampled_patches.h5
+        attributes_path: /home/maxime.difolco/Documents/data/MICCAI_2023/attributes_data/ACDC/
+        attributes_idx: *id002
+        win_size: *id001
+        rescale: 1.1
+        binary_label: true
+downstream_tasks:
+  ACDC:
+    module_name: projects.MICCAI_2023.DownstreamEvaluator_2D
+    class_name: PDownstreamEvaluator
+    checkpoint_path: ./weights/2023_10_26_12_18_10_630565
+    data_loader:
+      module_name: data.cardiac_loader_2D
+      class_name: CardiacLoader
+      params:
+        args:
+          patch_path: /home/maxime.difolco/Documents/data/MICCAI_2023/patch_data/ACDC/basal_resampled_patches.h5
+          attributes_path: /home/maxime.difolco/Documents/data/MICCAI_2023/attributes_data/ACDC/
+          attributes_idx: *id002
+          win_size: *id001
+          rescale: 1.1
+          binary_label: true
