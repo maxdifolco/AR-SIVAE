@@ -10,7 +10,9 @@ Preprint [Link to paper](https://arxiv.org/abs/2312.08915).
 
 **Abstract:** *Interpretability is essential in medical imaging to ensure that clinicians can comprehend and trust artificial intelligence models. In this paper, we propose a novel interpretable approach that combines attribute regularization of the latent space within the framework of an adversarially trained variational autoencoder. Comparative experiments on a cardiac MRI dataset demonstrate the ability of the proposed method to address blurry reconstruction issues of variational autoencoder methods and improve latent space interpretability. Additionally, our analysis of a downstream task reveals that the classification of cardiac disease using the regularized latent space heavily relies on attribute regularized dimensions, demonstrating great interpretability by connecting the used attributes for prediction with clinical observations.*
 
-<img src="./framework.jpg" alt="Framework" width="400" height="200">
+<div style="text-align:center;">
+  <img src="./framework.jpg" alt="Image Alt Text" style="width:50%; height:auto;">
+</div>
 
 
 ## Citation
