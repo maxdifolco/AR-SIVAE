@@ -10,6 +10,7 @@ iml-dl/weights/
 **/wandb*
 */**/__pycache__
 */**/**/__pycache__
-**/data/*
-!**/data/cardiac_attributes_loader.py
+iml-dl/data/*
+!iml-dl/data/cardiac_attributes_loader.py
+
 
